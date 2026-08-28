@@ -1,0 +1,114 @@
+-- Idempotent migration: tidak menghapus atau mengosongkan data lama.
+CREATE TABLE IF NOT EXISTS employees (
+    employee_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nrp VARCHAR(30) NOT NULL,
+    full_name VARCHAR(150) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    position VARCHAR(100) NOT NULL,
+    permit VARCHAR(50) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (employee_id),
+    UNIQUE KEY uq_employees_nrp (nrp)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE units
+    ADD COLUMN IF NOT EXISTS area_location VARCHAR(255) NULL AFTER no_lambung;
+
+INSERT INTO employees (nrp, full_name, department, position, permit) VALUES
+('103220553','AHMAD FADILAH','SERVICE SIMS','OFFICE BOY','SIMPER'),
+('52018001','ANGGRAITO PURNOMO','ADM','PJO MITRA KERJA','SIMPER'),
+('52018002','SUHARI','SERVICE PANTHER','DRIVER','SIMPER'),
+('52018008','SYAHRUDIN','PART BKJ','DRIVER','SIMPER'),
+('52018016','SAHRANI','SERVICE PANTHER','DRIVER','SIMPER'),
+('52018018','MISHANUDIN','SERVICE SIMS','OPERATOR','SIMPER'),
+('70216104','DIMAS SETYA AJI JAYA','SUBCONT','KOORDINATOR','SIMPER'),
+('70216274','MURDIANTO','SERVICE SIMS','DRIVER','SIMPER'),
+('702180108','HAKIKI','PART BIU','P2U','SIMPER'),
+('702250423','AHMAD MAHFUR','PART BKJ','WH Leader','SIMPER'),
+('70308017','ABDUL ROKHIM','SERVICE SIMS','MECHANIC','SIMPER'),
+('80105094','MUNAWAN','SERVICE SIMS','MEC. LEADER','SIMPER'),
+('80105098','MOCHAMAD IQBAL','SERVICE SIMS','MECHANIC','SIMPER'),
+('80106059','ALFAN FARDIAN','ADM','SITE MANAGER','SIMPER'),
+('80106070','JOKO PAMUNGKAS','SERVICE SIMS','MEC. LEADER','SIMPER'),
+('80106099','ROBI WAHANA PUTRA','SERVICE PANTHER','MEC. LEADER','SIMPER'),
+('80107135','NGEJO','SERVICE PANTHER','MECHANIC','SIMPER'),
+('80110023','PRATAMA ARDIE KURNIAWAN','CORPU','DEPT. HEAD','SIMPER'),
+('80110103','ADI WICAKSONO','PART BIU','DEPT. HEAD','SIMPER'),
+('80110294','HARRIS GUSMANSYAH','ESR','DEPT. HEAD','SIMPER'),
+('80111142','AKTO ARDY KURNIAWAN','CORPU','INSTRUCTOR','SIMPER'),
+('80111186','YAHMAN JULIANTO','CORPU','INSTRUCTOR','SIMPER'),
+('80111578','PRAMBUDI WICAKSONO','SERVICE SIMS','DEPT. HEAD','SIMPER'),
+('80112030','ADHIKA IAN PRAMUDYA','PART BIU','PSC OFFICER','SIMPER'),
+('80115109','MUH. ROFIK','PART BKJ','ASC OFFICER','SIMPER'),
+('80117068','ERWAN DANANG SUTOPO','SERVICE PANTHER','MECHANIC','SIMPER'),
+('80121026','REZKY CAHYA KHARISMA','PART BKJ','DEPT. HEAD','SIMPER'),
+('80124013','YULVA WIDYA SAPUTRA','ESR','ESR OFFICER','SIMPER'),
+('80191199','ASEP LUKMAN SUHENDAR','SERVICE PANTHER','DEPT. HEAD','SIMPER'),
+('80191240','R GUNAWAN BROTO SUSILO','SERVICE PANTHER','TECHNICAL CONTSULTAN QA','SIMPER'),
+('80195045','SUKAMTO','SERVICE PANTHER','SUPERVISOR','SIMPER'),
+('80195049','MAT SIDIK','SERVICE SIMS','MECHANIC','SIMPER'),
+('80195136','HASANUDDIN','SERVICE PANTHER','SUPERVISOR','SIMPER'),
+('82107073','SAPTA AFANDI','SERVICE PANTHER','MECHANIC','SIMPER'),
+('82208006','GITA','PART BIU','WH KEEPER','SIMPER'),
+('82210030','LILIK WINARKO','SERVICE PANTHER','MECHANIC','SIMPER'),
+('82210033','WARIS BAKTI SAWITO','SERVICE SIMS','MECHANIC','SIMPER'),
+('82611005','SAMIKUN','PART BKJ','PT OFFICER','SIMPER'),
+('82910007','MUHAMMAD HAFIFIE','SERVICE PANTHER','MEC. LEADER','SIMPER'),
+('83101012','ANDI ERWIN SUBEKTI','SERVICE PANTHER','MEC. LEADER','SIMPER'),
+('84210002','ROFRY YANSYAH','PART BKJ','ASC OFFICER','SIMPER'),
+('90122390','EKO PRASETYO','ESR','ESR OFFICER','SIMPER'),
+('91618234','MAWAR ROMADHON','ADM','GA MAINTENANCE','SIMPER'),
+('92619188','SAMSUL IBRAHIM','ADM','ADMINISTRASI STAFF','SIMPER'),
+('BK0541209','RAHMAT AMIN','PART BIU','WH CREW','SIMPER'),
+('BKJ0050107','BARI FRIMA','PART BIU','WH CREW','SIMPER'),
+('BKJ0090107','ASRORI','PART BIU','WH CREW','SIMPER'),
+('BKJ0611209','ASKAR','PART BKJ','WH CREW','SIMPER'),
+('BKJ0650410','YUAN RIFANTO','PART BKJ','DRIVER','SIMPER'),
+('BKJ0781011','AHMAD BAHRANI','PART BIU','WH CREW','SIMPER'),
+('BKJ1040314','SUPRIYADI','PART BIU','WH CREW','SIMPER'),
+('BKJ1101214','INDRA GUNAWAN','PART BKJ','DRIVER','SIMPER'),
+('BKJ1150615','DIKI MAULANA VILA YUDA','PART BIU','DRIVER','SIMPER'),
+('BKJ1340517','NANO','PART BIU','WH CREW','SIMPER')
+ON DUPLICATE KEY UPDATE
+ full_name=VALUES(full_name), department=VALUES(department), position=VALUES(position),
+ permit=VALUES(permit), is_active=1;
+
+INSERT IGNORE INTO unit_categories (category_name, fuel_efficiency_threshold)
+VALUES ('General Heavy Equipment', 25.00);
+INSERT IGNORE INTO sites (site_code, site_name) VALUES ('MAIN', 'Main Site');
+
+INSERT INTO units
+ (unit_code,type_unit,nomor_polisi,no_lambung,area_location,category_id,site_id,status)
+VALUES
+('LV-206','TRITON','KT 8258 YR','LV-206','NFMC SIMS',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-207','TRITON','KT8214YY','LV-207','NFMC SIMS',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-111','HILUX','KT8331ZI','LV-111','SUNGAI DURIAN',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-502','HILUX','KT8328ZI','LV-502','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-503','HILUX','KT8329ZI','LV-503','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-506','HILUX','KT8330ZI','LV-506','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-113','HILUX','KT8392ZG','LV-113','SUNGAI DURIAN',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-103','INNOVA','KT1634YZ','LV-103','OFFICE',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-104','INNOVA','KT1636YZ','LV-104','PARTS BKJ',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-105','INNOVA','KT1639YZ','LV-105','CORPU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-108','INNOVA','KT1653YZ','LV-108','PARTS BKJ',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-109','HILUX','KT8534ZI','LV-109','ESR',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-116','HILUX','KT8387ZG','LV-116','OFFICE',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-201','INNOVA','KT1393YT','LV-201','NFMC SIMS',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-303','HILUX','KT8386ZG','LV-303','PARTS BKJ',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-401','HILUX','KT8535ZI','LV-401','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-501','HILUX','KT8327ZI','LV-501','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-106','INNOVA','KT 1623 VE','LV-106','ESR',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('ELF','ELF','KT 7225 VB','ELF','GROGOT',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-117','DMAX','KT 8592 ZF','LV-117','PARTS BKJ',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-114','DMAX','KT 8591 ZF','LV-114','PARTS BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-115','DMAX','KT 8593 ZF','LV-115','PARTS BKJ',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('B-101','BUS','KT 7271 KA','B-101','PARTS BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('B-401','BUS','KT 7274 KA','B-401','NFMC BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV 119','INNOVA','KT 1854 ES','LV 119','CORPU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV 406','DMAX','KT 8997 ZH','LV 406','PARTS BIU',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active'),
+('LV-001','FORTUNER','KT1059EU','LV-001','OFFICE',(SELECT MIN(category_id) FROM unit_categories),(SELECT MIN(site_id) FROM sites),'active')
+ON DUPLICATE KEY UPDATE
+ type_unit=VALUES(type_unit), nomor_polisi=VALUES(nomor_polisi),
+ no_lambung=VALUES(no_lambung), area_location=VALUES(area_location);

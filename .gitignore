@@ -1,0 +1,5 @@
+.env
+exports/*.csv
+uploads/*
+!uploads/.htaccess
+utfuelregistration/
